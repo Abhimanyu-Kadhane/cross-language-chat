@@ -1,0 +1,28 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# SQLite databases
+*.db
+*.sqlite3
+
+# IDEs
+.idea/
+.vscode/
+.DS_Store
+.pytest_cache/
+
+# Streamlit secrets
+.streamlit/secrets.toml
