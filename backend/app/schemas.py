@@ -1,8 +1,8 @@
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 from email_validator import EmailNotValidError
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_serializer, field_validator
 
 from app.languages import SUPPORTED_LANGUAGES, is_supported_language
 
@@ -93,6 +93,67 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserOut
+
+
+class MessageCreate(BaseModel):
+    """Input schema for creating a text message."""
+
+    receiver_id: int
+    text: str
+
+    @field_validator("receiver_id")
+    @classmethod
+    def validate_receiver_id(cls, value: int) -> int:
+        if value <= 0:
+            raise ValueError("Receiver ID must be a positive integer.")
+        return value
+
+    @field_validator("text", mode="before")
+    @classmethod
+    def normalize_text(cls, value: str) -> str:
+        if value is None:
+            raise ValueError("Message text is required.")
+        return str(value).strip()
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, value: str) -> str:
+        if not value:
+            raise ValueError("Message text cannot be empty.")
+        if len(value) > 2000:
+            raise ValueError("Message text must be 2000 characters or fewer.")
+        return value
+
+
+class MessageOut(BaseModel):
+    """Message payload returned to clients."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    sender_id: int
+    receiver_id: int
+    message_type: str
+    original_text: str
+    original_language: str
+    translated_text: str | None = None
+    translated_language: str | None = None
+    created_at: datetime
+
+    @field_validator("created_at", mode="before")
+    @classmethod
+    def normalize_created_at(cls, value: datetime | None) -> datetime | None:
+        if value is None:
+            return value
+        if isinstance(value, datetime) and value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
 
 
 class LanguageOut(BaseModel):

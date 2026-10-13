@@ -16,9 +16,34 @@ This project is a backend-first messaging platform that lets users register, cho
 ## Planned Phases
 
 - [x] Phase 1: Backend foundation and authentication
-- [ ] Phase 2: Streamlit frontend and user flows
+- [ ] Phase 2: Streamlit frontend and user flows (in progress)
 - [ ] Phase 3: Translation services and message handling
 - [ ] Phase 4: Voice notes, speech-to-text, and text-to-speech
+
+## Run the frontend
+
+Open a second terminal while the backend is still running in the first terminal.
+
+- Windows PowerShell:
+  ```powershell
+  cd frontend
+  python -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  pip install -r requirements.txt
+  Copy-Item .streamlit\secrets.toml.example .streamlit\secrets.toml
+  streamlit run app.py
+  ```
+- macOS/Linux:
+  ```bash
+  cd frontend
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install -r requirements.txt
+  cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+  streamlit run app.py
+  ```
+
+The frontend opens at http://localhost:8501. The backend must already be running in another terminal before you launch the app.
 
 ## Local Setup
 
